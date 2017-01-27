@@ -52,11 +52,45 @@ function onLoad(framework) {
     // scene.add(lambertCube);
     scene.add(directionalLight);
 
+    //
+    var feather = {
+        distribution: 1.0,
+        size: 1.0,
+        color: [ 0, 128, 255 ],
+        orientation: 50,
+    };
+
+    var flapping = {
+        speed: 1.0,
+        motion: 1.0
+    }
+
     // edit params and listen to changes like this
     // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
     gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
         camera.updateProjectionMatrix();
     });
+
+    var f1 = gui.addFolder('Feather');
+    f1.add(feather, 'distribution', 0, 10).onChange(function(newVal) {
+
+    });
+    f1.add(feather, 'size', 0, 10).onChange(function(newVal) {
+
+    });
+    f1.addColor(feather, 'color').onChange(function(newVal) {
+
+    });
+    f1.open();
+
+    var f2 = gui.addFolder('Flapping');
+    f2.add(flapping, 'speed', 0.0, 5.0).onChange(function(newVal) {
+
+    });
+    f2.add(flapping, 'motion', 0.0, 5.0).onChange(function(newVal) {
+
+    });
+    f2.open();
 }
 
 // called on frame updates
