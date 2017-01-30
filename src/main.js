@@ -33,37 +33,83 @@ function onLoad(framework) {
 
     scene.background = skymap;
 
+
+    // Settings, Parameters 
+    var curveParams = {
+
+    }
+
+    var featherParams = {
+        distribution: 1.0,
+        size: 1.0,
+        color: [ 0, 128, 255 ],
+        orientation: 50,
+        points: 1000
+    };
+
+    var flappingParams = {
+        speed: 1.0,
+        motion: 1.0
+    }
+
+    var box = new THREE.BoxGeometry( 1, 1, 1 );
+    var mesh = new THREE.Mesh(box, lambertWhite);
+    mesh.position.set(5, 0, 0);
+    scene.add(mesh);
+
+    var curve = new THREE.CubicBezierCurve3(
+        new THREE.Vector3( -10, 0, 0 ),
+        new THREE.Vector3( -5, 15, 10 ),
+        new THREE.Vector3( 20, 15, 0 ),
+        new THREE.Vector3( 50, -20, 20 )
+    );
+
+    var geometry = new THREE.Geometry();
+    var points = curve.getPoints (featherParams.points);
+    geometry.vertices = points;
+
+    var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+
+    // Create the final object to add to the scene
+    var curveObject = new THREE.Line( geometry, material );
+    scene.add(curveObject);
+
+    var feather_items = [];
+
+
     // load a simple obj mesh
     var objLoader = new THREE.OBJLoader();
     objLoader.load('/geo/feather.obj', function(obj) {
 
         // LOOK: This function runs after the obj has finished loading
         var featherGeo = obj.children[0].geometry;
-
         var featherMesh = new THREE.Mesh(featherGeo, lambertWhite);
-        featherMesh.name = "feather";
-        scene.add(featherMesh);
+        featherMesh.rotateZ(-Math.PI / 2.0);
+        featherMesh.rotateX(Math.PI / 2.0);
+
+        for (var i = 0.0; i < featherParams.points; i++) {
+
+
+            var featherInstance = featherMesh.clone()
+            featherInstance.position.set(points[i].x, points[i].y, points[i].z);
+            var s = 2.0 * i / featherParams.points + 0.2;
+            featherInstance.scale.set(s, s, s);
+            scene.add(featherInstance);
+        }
+
+        // featherMesh.name = "feather";
+        // scene.add(featherMesh);
     });
 
+
     // set camera position
-    camera.position.set(0, 1, 5);
+    camera.position.set(0, 1, 50);
     camera.lookAt(new THREE.Vector3(0,0,0));
 
     // scene.add(lambertCube);
     scene.add(directionalLight);
 
-    //
-    var feather = {
-        distribution: 1.0,
-        size: 1.0,
-        color: [ 0, 128, 255 ],
-        orientation: 50,
-    };
 
-    var flapping = {
-        speed: 1.0,
-        motion: 1.0
-    }
 
     // edit params and listen to changes like this
     // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
@@ -71,36 +117,45 @@ function onLoad(framework) {
         camera.updateProjectionMatrix();
     });
 
+    // Curve Controls
+    // var f0 = gui.addFolder('Curve');
+
+    // Feather Controls
     var f1 = gui.addFolder('Feather');
-    f1.add(feather, 'distribution', 0, 10).onChange(function(newVal) {
+    f1.add(featherParams, 'distribution', 0, 10).onChange(function(newVal) {
 
     });
-    f1.add(feather, 'size', 0, 10).onChange(function(newVal) {
+    f1.add(featherParams, 'size', 0, 10).onChange(function(newVal) {
 
     });
-    f1.addColor(feather, 'color').onChange(function(newVal) {
+    f1.addColor(featherParams, 'color').onChange(function(newVal) {
 
     });
-    f1.open();
+    //f1.open();
 
+    // Flapping Controls
     var f2 = gui.addFolder('Flapping');
-    f2.add(flapping, 'speed', 0.0, 5.0).onChange(function(newVal) {
+    f2.add(flappingParams, 'speed', 0.0, 5.0).onChange(function(newVal) {
 
     });
-    f2.add(flapping, 'motion', 0.0, 5.0).onChange(function(newVal) {
+    f2.add(flappingParams, 'motion', 0.0, 5.0).onChange(function(newVal) {
 
     });
-    f2.open();
+    //f2.open();
+}
+
+function updateCurve() {
+
 }
 
 // called on frame updates
 function onUpdate(framework) {
-    var feather = framework.scene.getObjectByName("feather");    
-    if (feather !== undefined) {
-        // Simply flap wing
-        var date = new Date();
-        feather.rotateZ(Math.sin(date.getTime() / 100) * 2 * Math.PI / 180);        
-    }
+    // var feather = framework.scene.getObjectByName("feather");    
+    // if (feather !== undefined) {
+    //     // Simply flap wing
+    //     var date = new Date();
+    //     feather.rotateZ(Math.sin(date.getTime() / 100) * 2 * Math.PI / 180);        
+    // }
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
