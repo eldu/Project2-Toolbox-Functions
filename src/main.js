@@ -184,7 +184,7 @@ function createWing(featherGeo, scene) {
         }
 
         // FIRST
-        var featherInstance = featherMesh.clone();
+        var featherInstance = new THREE.Mesh(featherGeo, lambertWhite.clone());
         featherInstance.position.set(points[i].x, points[i].y, points[i].z);
         var s = featherParams.size * i / featherParams.points / 2 + 2.0;
         featherInstance.scale.set(s, s, s);
@@ -200,7 +200,7 @@ function createWing(featherGeo, scene) {
         scene.add(featherInstance);
 
         // SECOND
-        var featherInstance2 = featherMesh.clone();
+        var featherInstance2 = new THREE.Mesh(featherGeo, lambertWhite.clone());
         featherInstance2.position.set(points2[i].x, points2[i].y, points2[i].z);
         var s2 = featherParams.size + 1.0;
         featherInstance2.scale.set(s2, s2, s2);
@@ -217,7 +217,7 @@ function createWing(featherGeo, scene) {
 
 
         // THIRD
-        var featherInstance3 = featherMesh.clone();
+        var featherInstance3 = new THREE.Mesh(featherGeo, lambertWhite.clone());
         featherInstance3.position.set(points3[i].x, points3[i].y, points3[i].z);
         var s3 = featherParams.size * 2 * i / featherParams.points + 7.0;
         featherInstance3.scale.set(s3, s3, s3);
@@ -239,25 +239,20 @@ function createWing(featherGeo, scene) {
 }
 
 function updateWing() {
+    var r = featherParams.color[0] / 255.0;
+    var g = featherParams.color[1] / 255.0;
+    var b = featherParams.color[2] / 255.0;
+
     for (var i = 0; i < f1.length; i++) {
-        var r = featherParams.color[0] / 255.0;
-        var g = featherParams.color[1] / 255.0;
-        var b = featherParams.color[2] / 255.0;
-
-        //var f1_color = "rgb(" + r.toString() + ", " + g.toString() + ", " + b.toString() + ")";
-        // console.log(f1_color);
-
-
-        f1[i].material.color = new THREE.Color(r, g, b);
+        f1[i].material.color = new THREE.Color(r * 1.5, g * 1.5, b + i / f1.length);
     }
 
     for (var j = 0; j < f2.length; j++) {
-
-
+        f2[j].material.color = new THREE.Color(r + j / f2.length, g + j / f2.length, b + j / f2.length);
     }
 
     for (var k = 0; k < f3.length; k++) {
-
+        f3[k].material.color = new THREE.Color(r, g + k / f3.length, b);
     }
 }
 
