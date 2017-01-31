@@ -14,6 +14,10 @@ var points2;
 var points3;
 var lambertWhite;
 
+var f1 = [];
+var f2 = [];
+var f3 = [];
+
 // Settings, Parameters 
 var curveParams = {
 
@@ -22,7 +26,7 @@ var curveParams = {
 var featherParams = {
     distribution: 1.0,
     size: 5.0,
-    color: [ 0, 128, 255 ],
+    color: [ 0.0, 128.0, 255.0 ],
     orientation: 50,
     points: 1000
 };
@@ -31,8 +35,6 @@ var flappingParams = {
     speed: 1.0,
     motion: 1.0
 }
-
-
 
 // called after the scene loads
 function onLoad(framework) {
@@ -145,23 +147,24 @@ function onLoad(framework) {
     // Feather Controls
     var f1 = gui.addFolder('Feather');
     f1.add(featherParams, 'distribution', 0, 10).onChange(function(newVal) {
-
+        updateWing();
     });
     f1.add(featherParams, 'size', 0, 10).onChange(function(newVal) {
         featherParams.size = newVal;
+        updateWing();
     });
     f1.addColor(featherParams, 'color').onChange(function(newVal) {
-
+        updateWing();
     });
     //f1.open();
 
     // Flapping Controls
     var f2 = gui.addFolder('Flapping');
     f2.add(flappingParams, 'speed', 0.0, 5.0).onChange(function(newVal) {
-
+        updateWing();
     });
     f2.add(flappingParams, 'motion', 0.0, 5.0).onChange(function(newVal) {
-
+        updateWing();
     });
     //f2.open();
 }
@@ -192,6 +195,7 @@ function createWing(featherGeo, scene) {
 
         featherInstance.quaternion.setFromAxisAngle( axis, rad );
         featherInstance.rotateX(Math.PI / 2.0);
+        f1.push(featherInstance);
 
         scene.add(featherInstance);
 
@@ -207,6 +211,7 @@ function createWing(featherGeo, scene) {
 
         featherInstance2.quaternion.setFromAxisAngle( axis, rad2 );
         featherInstance2.rotateX(Math.PI / 2.0);
+        f2.push(featherInstance2);
 
         scene.add(featherInstance2);
 
@@ -223,10 +228,36 @@ function createWing(featherGeo, scene) {
 
         featherInstance3.quaternion.setFromAxisAngle( axis, rad3 );
         featherInstance3.rotateX(Math.PI / 2.0);
+        f3.push(featherInstance3);
 
         scene.add(featherInstance3);
 
         i += add;
+    }
+
+    updateWing();
+}
+
+function updateWing() {
+    for (var i = 0; i < f1.length; i++) {
+        var r = featherParams.color[0] / 255.0;
+        var g = featherParams.color[1] / 255.0;
+        var b = featherParams.color[2] / 255.0;
+
+        //var f1_color = "rgb(" + r.toString() + ", " + g.toString() + ", " + b.toString() + ")";
+        // console.log(f1_color);
+
+
+        f1[i].material.color = new THREE.Color(r, g, b);
+    }
+
+    for (var j = 0; j < f2.length; j++) {
+
+
+    }
+
+    for (var k = 0; k < f3.length; k++) {
+
     }
 }
 
