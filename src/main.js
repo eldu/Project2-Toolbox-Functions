@@ -239,20 +239,41 @@ function createWing(featherGeo, scene) {
 }
 
 function updateWing() {
+    // Color
     var r = featherParams.color[0] / 255.0;
     var g = featherParams.color[1] / 255.0;
     var b = featherParams.color[2] / 255.0;
 
+
+
+
+
+
     for (var i = 0; i < f1.length; i++) {
+        // Color
         f1[i].material.color = new THREE.Color(r * 1.5, g * 1.5, b + i / f1.length);
+
+        // Scale
+        var s = featherParams.size * i / featherParams.points / 2 + 2.0;
+        f1[i].scale.set(s, s, s);
     }
 
     for (var j = 0; j < f2.length; j++) {
+        // Color
         f2[j].material.color = new THREE.Color(r + j / f2.length, g + j / f2.length, b + j / f2.length);
+
+        // Scale
+        var s2 = featherParams.size * 2 * i / featherParams.points + 3.0;
+        f2[j].scale.set(s2, s2, s2);
     }
 
     for (var k = 0; k < f3.length; k++) {
+        // Color
         f3[k].material.color = new THREE.Color(r, g + k / f3.length, b);
+
+        //
+        var s3 = featherParams.size + 7.0 * i / featherParams.points;
+        f3[k].scale.set(s3, s3, s3);
     }
 }
 
