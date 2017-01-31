@@ -41,7 +41,7 @@ function onLoad(framework) {
 
     var featherParams = {
         distribution: 1.0,
-        size: 1.0,
+        size: 5.0,
         color: [ 0, 128, 255 ],
         orientation: 50,
         points: 1000
@@ -52,16 +52,12 @@ function onLoad(framework) {
         motion: 1.0
     }
 
-    var box = new THREE.BoxGeometry( 1, 1, 1 );
-    var mesh = new THREE.Mesh(box, lambertWhite);
-    mesh.position.set(5, 0, 0);
-    scene.add(mesh);
-
+    // TOP CURVE
     var curve = new THREE.CubicBezierCurve3(
-        new THREE.Vector3( -10, 0, 0 ),
-        new THREE.Vector3( -5, 15, 10 ),
-        new THREE.Vector3( 20, 15, 0 ),
-        new THREE.Vector3( 50, -20, 20 )
+        new THREE.Vector3( -10, -5, 0.4 ),
+        new THREE.Vector3( 15, 5, 10.4 ),
+        new THREE.Vector3( 30, -5, 5.4 ),
+        new THREE.Vector3( 50, -5, 15 )
     );
 
     var geometry = new THREE.Geometry();
@@ -72,11 +68,47 @@ function onLoad(framework) {
 
     // Create the final object to add to the scene
     var curveObject = new THREE.Line( geometry, material );
-    scene.add(curveObject);
+    //scene.add(curveObject);
+    // END TOP CURVE
 
-    var feather_items = [];
+    // SECOND CURVE
+    var curve2 = new THREE.CubicBezierCurve3(
+        new THREE.Vector3( -10, -5, 0.2 ),
+        new THREE.Vector3( 15, 5, 10.2 ),
+        new THREE.Vector3( 40, -20, 0.2 ),
+        new THREE.Vector3( 80, 10, 27 )
+    );
+    
+    var geometry2 = new THREE.Geometry();
+    var points2 = curve2.getPoints (featherParams.points);
+    geometry2.vertices = points2;
+
+    var material2 = new THREE.LineBasicMaterial( { color : 0x00ff00 } );
+    var curveObject2 = new THREE.Line( geometry2, material2 );
+
+    //scene.add(curveObject2);
+    // END SECOND CURVE
+
+    // THIRD CURVE
+    var curve3 = new THREE.CubicBezierCurve3(
+        new THREE.Vector3( -10, -5, 0 ),
+        new THREE.Vector3( 20, 10, 10 ),
+        new THREE.Vector3( 40, -30, 0 ),
+        new THREE.Vector3( 100, 20, 27 )
+    );
+    
+    var geometry3 = new THREE.Geometry();
+    var points3 = curve3.getPoints (featherParams.points);
+    geometry3.vertices = points3;
+
+    var material3 = new THREE.LineBasicMaterial( { color : 0x0000ff } );
+    var curveObject3 = new THREE.Line( geometry3, material3 );
+
+    //scene.add(curveObject3);
+    // END THIRD CURVE
 
 
+    // TODO: CLEAN UP THIS MESSY REPEATING CODE, WHO ARE YOU ELLEN.
     // load a simple obj mesh
     var objLoader = new THREE.OBJLoader();
     objLoader.load('/geo/feather.obj', function(obj) {
@@ -84,21 +116,68 @@ function onLoad(framework) {
         // LOOK: This function runs after the obj has finished loading
         var featherGeo = obj.children[0].geometry;
         var featherMesh = new THREE.Mesh(featherGeo, lambertWhite);
-        featherMesh.rotateZ(-Math.PI / 2.0);
-        featherMesh.rotateX(Math.PI / 2.0);
+        // featherMesh.rotateZ(-Math.PI / 2.0);
+        // featherMesh.rotateX(Math.PI / 2.0);
 
+        var axis = new THREE.Vector3();
+        var up = new THREE.Vector3( 0, 1, 0 );
+
+        var threshold = 4.0;
+        var add = 0.0;
         for (var i = 0.0; i < featherParams.points; i++) {
+            if (i > threshold) {      
+                threshold *= 1.5;
+                add++;
+            }
 
-
-            var featherInstance = featherMesh.clone()
+            // FIRST
+            var featherInstance = featherMesh.clone();
             featherInstance.position.set(points[i].x, points[i].y, points[i].z);
-            var s = 2.0 * i / featherParams.points + 0.2;
+            var s = featherParams.size * i / featherParams.points / 2 + 2.0;
             featherInstance.scale.set(s, s, s);
-            scene.add(featherInstance);
-        }
 
-        // featherMesh.name = "feather";
-        // scene.add(featherMesh);
+            var tangent = curve.getTangent(i / featherParams.points).normalize();
+            axis.crossVectors(up, tangent).normalize();
+            var rad = Math.acos(up.dot(tangent));
+
+            featherInstance.quaternion.setFromAxisAngle( axis, rad );
+            featherInstance.rotateX(Math.PI / 2.0);
+
+            scene.add(featherInstance);
+
+            // SECOND
+            var featherInstance2 = featherMesh.clone();
+            featherInstance2.position.set(points2[i].x, points2[i].y, points2[i].z);
+            var s2 = featherParams.size + 1.0;
+            featherInstance2.scale.set(s2, s2, s2);
+
+            var tangent2 = curve2.getTangent(i / featherParams.points).normalize();
+            axis.crossVectors(up, tangent2).normalize();
+            var rad2 = Math.acos(up.dot(tangent2));
+
+            featherInstance2.quaternion.setFromAxisAngle( axis, rad2 );
+            featherInstance2.rotateX(Math.PI / 2.0);
+
+            scene.add(featherInstance2);
+
+
+            // THIRD
+            var featherInstance3 = featherMesh.clone();
+            featherInstance3.position.set(points3[i].x, points3[i].y, points3[i].z);
+            var s3 = featherParams.size * 2 * i / featherParams.points + 7.0;
+            featherInstance3.scale.set(s3, s3, s3);
+            
+            var tangent3 = curve3.getTangent(i / featherParams.points).normalize();
+            axis.crossVectors(up, tangent3).normalize();
+            var rad3 = Math.acos(up.dot(tangent3));
+
+            featherInstance3.quaternion.setFromAxisAngle( axis, rad3 );
+            featherInstance3.rotateX(Math.PI / 2.0);
+
+            scene.add(featherInstance3);
+
+            i += add;
+        }
     });
 
 
@@ -126,7 +205,7 @@ function onLoad(framework) {
 
     });
     f1.add(featherParams, 'size', 0, 10).onChange(function(newVal) {
-
+        featherParams.size = newVal;
     });
     f1.addColor(featherParams, 'color').onChange(function(newVal) {
 
