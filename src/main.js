@@ -283,7 +283,7 @@ function moveWing() {
         var x = f1[i].position.x;
         var y = f1[i].position.y;
         var z = f1[i].position.z;
-        f1[i].position.set(x, y, x * Math.sin(date / 1000));
+        f1[i].position.set(x, y, x * x * Math.sin(date / 1000.0) / 100.0);
 
         var rotz = Math.sin((Math.random() - 0.5) / 3.0) * 2 * Math.PI / 180;
         var roty = Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180;
@@ -307,7 +307,7 @@ function moveWing() {
         var x = f2[j].position.x;
         var y = f2[j].position.y;
         var z = f2[j].position.z;
-        f2[j].position.set(x, y, x * Math.sin(date / 1000));
+        f2[j].position.set(x, y, x * x * Math.sin(date / 1000.0) / 100.0);
 
         var rotz = Math.sin((Math.random() - 0.5) / 3.0) * 2 * Math.PI / 180;
         var roty = Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180;
@@ -331,8 +331,7 @@ function moveWing() {
         var x = f3[k].position.x;
         var y = f3[k].position.y;
         var z = f3[k].position.z;
-        console.log(date);
-        f3[k].position.set(x, y, x * Math.sin(date / 1000));
+        f3[k].position.set(x, y, x * x * Math.sin(date / 1000.0) / 100.0);
         //f3[k].position.set(x, y, z + x * sin(date));
 
         var rotz = Math.sin((Math.random() - 0.5) / 3.0) * 2 * Math.PI / 180;
