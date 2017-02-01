@@ -45,7 +45,7 @@ var featherParams = {
     size: 5.0,
     color: [ 0.0, 128.0, 255.0 ],
     orientation: 50,
-    points: 1000
+    points: 1500
 };
 
 var flappingParams = {
@@ -278,7 +278,8 @@ function moveWing() {
         var y = f1[i].position.y;
         var z = f1[i].position.z;
         f1[i].position.set(x, y, z);
-        f1[i].rotateZ(Math.sin(date.getTime() / 100) * 2 * Math.PI / 180);   
+        f1[i].rotateZ(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180);  
+        f1[i].rotateY(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180);
     }
 
     for (var j = 0; j < f2.length; j++) {
@@ -286,7 +287,8 @@ function moveWing() {
         var y = f2[j].position.y;
         var z = f2[j].position.z;
         f2[j].position.set(x, y, z);
-        f2[j].rotateZ(Math.sin(date.getTime() / 100) * 2 * Math.PI / 180); 
+        f2[j].rotateZ(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180);  
+        f2[j].rotateY(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180);
     }
 
     for (var k = 0; k < f3.length; k++) {       
@@ -294,7 +296,8 @@ function moveWing() {
         var y = f3[k].position.y;
         var z = f3[k].position.z;
         f3[k].position.set(x, y, z);
-        f3[k].rotateZ(Math.sin(date.getTime() / 100) * 2 * Math.PI / 180); 
+        f3[k].rotateZ(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180); 
+        f3[k].rotateY(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180); 
     }
 }
 
