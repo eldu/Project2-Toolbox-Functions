@@ -6,9 +6,26 @@ import Framework from './framework'
 
 // Array of feathers on their corresponding curves;
 var featherGeo;
-var curve;
-var curve2;
-var curve3;
+var loaded = false;
+
+var curve = new THREE.CubicBezierCurve3(
+        new THREE.Vector3( -10, -5, 0.4 ),
+        new THREE.Vector3( 15, 5, 10.4 ),
+        new THREE.Vector3( 30, -5, 5.4 ),
+        new THREE.Vector3( 50, -5, 15 )
+    );
+var curve2 = new THREE.CubicBezierCurve3(
+        new THREE.Vector3( -10, -5, 0.2 ),
+        new THREE.Vector3( 15, 5, 10.2 ),
+        new THREE.Vector3( 40, -20, 0.2 ),
+        new THREE.Vector3( 80, 10, 27 )
+    );
+var curve3 = new THREE.CubicBezierCurve3(
+        new THREE.Vector3( -10, -5, 0 ),
+        new THREE.Vector3( 20, 10, 10 ),
+        new THREE.Vector3( 40, -30, 0 ),
+        new THREE.Vector3( 100, 20, 27 )
+    );
 var points;
 var points2;
 var points3;
@@ -65,30 +82,18 @@ function onLoad(framework) {
 
     scene.background = skymap;
 
+
+    var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
     var geometry = new THREE.Geometry();
-    curve = new THREE.CubicBezierCurve3(
-        new THREE.Vector3( -10, -5, 0.4 ),
-        new THREE.Vector3( 15, 5, 10.4 ),
-        new THREE.Vector3( 30, -5, 5.4 ),
-        new THREE.Vector3( 50, -5, 15 )
-    );
     points = curve.getPoints (featherParams.points);
     geometry.vertices = points;
 
-    var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
 
-    // Create the final object to add to the scene
     //var curveObject = new THREE.Line( geometry, material );
     //scene.add(curveObject);
     // END TOP CURVE
 
     // SECOND CURVE
-    curve2 = new THREE.CubicBezierCurve3(
-        new THREE.Vector3( -10, -5, 0.2 ),
-        new THREE.Vector3( 15, 5, 10.2 ),
-        new THREE.Vector3( 40, -20, 0.2 ),
-        new THREE.Vector3( 80, 10, 27 )
-    );
     
     var geometry2 = new THREE.Geometry();
     points2 = curve2.getPoints (featherParams.points);
@@ -100,13 +105,6 @@ function onLoad(framework) {
     // END SECOND CURVE
 
     // THIRD CURVE
-    curve3 = new THREE.CubicBezierCurve3(
-        new THREE.Vector3( -10, -5, 0 ),
-        new THREE.Vector3( 20, 10, 10 ),
-        new THREE.Vector3( 40, -30, 0 ),
-        new THREE.Vector3( 100, 20, 27 )
-    );
-    
     var geometry3 = new THREE.Geometry();
     points3 = curve3.getPoints (featherParams.points);
     geometry3.vertices = points3;
@@ -133,8 +131,6 @@ function onLoad(framework) {
     // scene.add(lambertCube);
     scene.add(directionalLight);
 
-
-
     // edit params and listen to changes like this
     // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
     gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
@@ -150,7 +146,6 @@ function onLoad(framework) {
         updateWing();
     });
     f1.add(featherParams, 'size', 0, 10).onChange(function(newVal) {
-        featherParams.size = newVal;
         updateWing();
     });
     f1.addColor(featherParams, 'color').onChange(function(newVal) {
@@ -244,11 +239,6 @@ function updateWing() {
     var g = featherParams.color[1] / 255.0;
     var b = featherParams.color[2] / 255.0;
 
-
-
-
-
-
     for (var i = 0; i < f1.length; i++) {
         // Color
         f1[i].material.color = new THREE.Color(r * 1.5, g * 1.5, b + i / f1.length);
@@ -275,6 +265,37 @@ function updateWing() {
         var s3 = featherParams.size + 7.0 * i / featherParams.points;
         f3[k].scale.set(s3, s3, s3);
     }
+
+    loaded = true;
+}
+
+function moveWing() {
+    // console.log(curve.v0);
+    var date = new Date();
+
+    for (var i = 0; i < f1.length; i++) {
+        var x = f1[i].position.x;
+        var y = f1[i].position.y;
+        var z = f1[i].position.z;
+        f1[i].position.set(x, y, z);
+        f1[i].rotateZ(Math.sin(date.getTime() / 100) * 2 * Math.PI / 180);   
+    }
+
+    for (var j = 0; j < f2.length; j++) {
+        var x = f2[j].position.x;
+        var y = f2[j].position.y;
+        var z = f2[j].position.z;
+        f2[j].position.set(x, y, z);
+        f2[j].rotateZ(Math.sin(date.getTime() / 100) * 2 * Math.PI / 180); 
+    }
+
+    for (var k = 0; k < f3.length; k++) {       
+        var x = f3[k].position.x;
+        var y = f3[k].position.y;
+        var z = f3[k].position.z;
+        f3[k].position.set(x, y, z);
+        f3[k].rotateZ(Math.sin(date.getTime() / 100) * 2 * Math.PI / 180); 
+    }
 }
 
 // called on frame updates
@@ -285,6 +306,9 @@ function onUpdate(framework) {
     //     var date = new Date();
     //     feather.rotateZ(Math.sin(date.getTime() / 100) * 2 * Math.PI / 180);        
     // }
+    if (loaded) {
+        moveWing();
+    }
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
