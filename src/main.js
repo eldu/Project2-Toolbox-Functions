@@ -9,22 +9,22 @@ var featherGeo;
 var loaded = false;
 
 var curve = new THREE.CubicBezierCurve3(
-        new THREE.Vector3( -10, -5, 0.4 ),
-        new THREE.Vector3( 15, 5, 10.4 ),
-        new THREE.Vector3( 30, -5, 5.4 ),
-        new THREE.Vector3( 50, -5, 15 )
+        new THREE.Vector3( 0, -5, 0.4 ),
+        new THREE.Vector3( 25, 5, 10.4 ),
+        new THREE.Vector3( 40, -5, 5.4 ),
+        new THREE.Vector3( 60, -5, 15 )
     );
 var curve2 = new THREE.CubicBezierCurve3(
-        new THREE.Vector3( -10, -5, 0.2 ),
-        new THREE.Vector3( 15, 5, 10.2 ),
-        new THREE.Vector3( 40, -20, 0.2 ),
-        new THREE.Vector3( 80, 10, 27 )
+        new THREE.Vector3( 0, -5, 0.2 ),
+        new THREE.Vector3( 25, 5, 10.2 ),
+        new THREE.Vector3( 50, -20, 0.2 ),
+        new THREE.Vector3( 90, 10, 27 )
     );
 var curve3 = new THREE.CubicBezierCurve3(
-        new THREE.Vector3( -10, -5, 0 ),
-        new THREE.Vector3( 20, 10, 10 ),
-        new THREE.Vector3( 40, -30, 0 ),
-        new THREE.Vector3( 100, 20, 27 )
+        new THREE.Vector3( 0, -5, 0 ),
+        new THREE.Vector3( 30, 10, 10 ),
+        new THREE.Vector3( 50, -30, 0 ),
+        new THREE.Vector3( 90, 10, 27 )
     );
 var points;
 var points2;
@@ -34,6 +34,9 @@ var lambertWhite;
 var f1 = [];
 var f2 = [];
 var f3 = [];
+var f1_rad = [];
+var f2_rad = [];
+var f3_rad = [];
 
 // Settings, Parameters 
 var curveParams = {
@@ -191,13 +194,14 @@ function createWing(featherGeo, scene) {
         featherInstance.quaternion.setFromAxisAngle( axis, rad );
         featherInstance.rotateX(Math.PI / 2.0);
         f1.push(featherInstance);
-
+        f1_rad.push(featherInstance.rotation);
         scene.add(featherInstance);
+
 
         // SECOND
         var featherInstance2 = new THREE.Mesh(featherGeo, lambertWhite.clone());
         featherInstance2.position.set(points2[i].x, points2[i].y, points2[i].z);
-        var s2 = featherParams.size + 1.0;
+        var s2 = featherParams.size * 2 * i / featherParams.points + 1.0;
         featherInstance2.scale.set(s2, s2, s2);
 
         var tangent2 = curve2.getTangent(i / featherParams.points).normalize();
@@ -207,7 +211,7 @@ function createWing(featherGeo, scene) {
         featherInstance2.quaternion.setFromAxisAngle( axis, rad2 );
         featherInstance2.rotateX(Math.PI / 2.0);
         f2.push(featherInstance2);
-
+        f2_rad.push(featherInstance2.rotation);
         scene.add(featherInstance2);
 
 
@@ -224,7 +228,7 @@ function createWing(featherGeo, scene) {
         featherInstance3.quaternion.setFromAxisAngle( axis, rad3 );
         featherInstance3.rotateX(Math.PI / 2.0);
         f3.push(featherInstance3);
-
+        f3_rad.push(featherInstance3.rotation);
         scene.add(featherInstance3);
 
         i += add;
@@ -244,7 +248,7 @@ function updateWing() {
         f1[i].material.color = new THREE.Color(r * 1.5, g * 1.5, b + i / f1.length);
 
         // Scale
-        var s = featherParams.size * i / featherParams.points / 2 + 2.0;
+        var s = featherParams.size * i / f1.length / 2 + 2.0;
         f1[i].scale.set(s, s, s);
     }
 
@@ -253,7 +257,7 @@ function updateWing() {
         f2[j].material.color = new THREE.Color(r + j / f2.length, g + j / f2.length, b + j / f2.length);
 
         // Scale
-        var s2 = featherParams.size * 2 * i / featherParams.points + 3.0;
+        var s2 = featherParams.size * 2 * j / f2.length + 3.0;
         f2[j].scale.set(s2, s2, s2);
     }
 
@@ -262,13 +266,15 @@ function updateWing() {
         f3[k].material.color = new THREE.Color(r, g + k / f3.length, b);
 
         //
-        var s3 = featherParams.size + 7.0 * i / featherParams.points;
+        var s3 = featherParams.size * 2 * k / f2.length + 7.0;
         f3[k].scale.set(s3, s3, s3);
     }
 
     loaded = true;
 }
 
+
+var threshold = Math.PI / 10.0;
 function moveWing() {
     // console.log(curve.v0);
     var date = new Date();
@@ -277,27 +283,74 @@ function moveWing() {
         var x = f1[i].position.x;
         var y = f1[i].position.y;
         var z = f1[i].position.z;
-        f1[i].position.set(x, y, z);
-        f1[i].rotateZ(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180);  
-        f1[i].rotateY(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180);
+        f1[i].position.set(x, y, x * Math.sin(date / 1000));
+
+        var rotz = Math.sin((Math.random() - 0.5) / 3.0) * 2 * Math.PI / 180;
+        var roty = Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180;
+
+        if (f1[i].rotation.z + rotz <= f1_rad[i].z + threshold 
+            && f1[i].rotation.z + rotz >= f1_rad[i].z - threshold) {
+            f1[i].rotateZ(rotz); 
+        } else {
+            f1[i].rotateZ(-rotz); 
+        }
+
+        if (f1[i].rotation.y + roty <= f1_rad[i].y + threshold 
+            && f1[i].rotation.y + roty >= f1_rad[i].y - threshold) {
+            f1[i].rotateY(roty); 
+        } else {
+            f1[i].rotateY(-roty); 
+        }
     }
 
     for (var j = 0; j < f2.length; j++) {
         var x = f2[j].position.x;
         var y = f2[j].position.y;
         var z = f2[j].position.z;
-        f2[j].position.set(x, y, z);
-        f2[j].rotateZ(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180);  
-        f2[j].rotateY(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180);
+        f2[j].position.set(x, y, x * Math.sin(date / 1000));
+
+        var rotz = Math.sin((Math.random() - 0.5) / 3.0) * 2 * Math.PI / 180;
+        var roty = Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180;
+
+        if (f2[j].rotation.z + rotz <= f2_rad[j].z + threshold 
+            && f1[j].rotation.z + rotz >= f2_rad[j].z - threshold) {
+            f2[j].rotateZ(rotz); 
+        } else {
+            f2[j].rotateZ(-rotz); 
+        }
+
+        if (f2[j].rotation.y + roty <= f2_rad[j].y + threshold 
+            && f2[j].rotation.y + roty >= f2_rad[j].y - threshold) {
+            f2[j].rotateY(roty); 
+        } else {
+            f2[j].rotateY(-roty); 
+        }
     }
 
     for (var k = 0; k < f3.length; k++) {       
         var x = f3[k].position.x;
         var y = f3[k].position.y;
         var z = f3[k].position.z;
-        f3[k].position.set(x, y, z);
-        f3[k].rotateZ(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180); 
-        f3[k].rotateY(Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180); 
+        console.log(date);
+        f3[k].position.set(x, y, x * Math.sin(date / 1000));
+        //f3[k].position.set(x, y, z + x * sin(date));
+
+        var rotz = Math.sin((Math.random() - 0.5) / 3.0) * 2 * Math.PI / 180;
+        var roty = Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180;
+
+        if (f3[k].rotation.z + rotz <= f3_rad[k].z + threshold 
+            && f3[k].rotation.z + rotz >= f3_rad[k].z - threshold) {
+            f3[k].rotateZ(rotz); 
+        } else {
+            f3[k].rotateZ(-rotz);
+        }
+
+        if (f3[k].rotation.y + roty <= f3_rad[k].y + threshold 
+            && f3[k].rotation.y + roty >= f3_rad[k].y - threshold) {
+            f3[k].rotateY(roty); 
+        } else {
+            f3[k].rotateY(-roty); 
+        }
     }
 }
 
