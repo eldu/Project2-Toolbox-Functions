@@ -31,12 +31,16 @@ var points2;
 var points3;
 var lambertWhite;
 
+// Stores the feather meshes and the rotation data
 var f1 = [];
 var f2 = [];
 var f3 = [];
 var f1_rad = [];
 var f2_rad = [];
 var f3_rad = [];
+
+// Threshold of the Wind
+var threshold = Math.PI * 0.05;
 
 // Settings, Parameters 
 var curveParams = {
@@ -85,37 +89,20 @@ function onLoad(framework) {
 
     scene.background = skymap;
 
-
-    var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+    // First Curve
     var geometry = new THREE.Geometry();
     points = curve.getPoints (featherParams.points);
     geometry.vertices = points;
 
-
-    //var curveObject = new THREE.Line( geometry, material );
-    //scene.add(curveObject);
-    // END TOP CURVE
-
-    // SECOND CURVE
-    
+    // Second Curve
     var geometry2 = new THREE.Geometry();
     points2 = curve2.getPoints (featherParams.points);
     geometry2.vertices = points2;
 
-    //var material2 = new THREE.LineBasicMaterial( { color : 0x00ff00 } );
-    //var curveObject2 = new THREE.Line( geometry2, material2 );
-    //scene.add(curveObject2);
-    // END SECOND CURVE
-
-    // THIRD CURVE
+    // Third CURVE
     var geometry3 = new THREE.Geometry();
     points3 = curve3.getPoints (featherParams.points);
     geometry3.vertices = points3;
-
-    //var material3 = new THREE.LineBasicMaterial( { color : 0x0000ff } );
-    //var curveObject3 = new THREE.Line( geometry3, material3 );
-    //scene.add(curveObject3);
-    // END THIRD CURVE
 
     // TODO: CLEAN UP THIS MESSY REPEATING CODE, WHO ARE YOU ELLEN.
     // load a simple obj mesh
@@ -125,7 +112,6 @@ function onLoad(framework) {
         featherGeo = obj.children[0].geometry;
         createWing(featherGeo, scene);
     });
-
 
     // set camera position
     camera.position.set(0, 1, 50);
@@ -141,20 +127,17 @@ function onLoad(framework) {
     });
 
     // Curve Controls
-    // var f0 = gui.addFolder('Curve');
-
     // Feather Controls
     var f1 = gui.addFolder('Feather');
-    f1.add(featherParams, 'distribution', 0, 10).onChange(function(newVal) {
-        updateWing();
-    });
+    // f1.add(featherParams, 'distribution', 0, 10).onChange(function(newVal) {
+    //     updateWing();
+    // });
     f1.add(featherParams, 'size', 0, 10).onChange(function(newVal) {
         updateWing();
     });
     f1.addColor(featherParams, 'color').onChange(function(newVal) {
         updateWing();
     });
-    //f1.open();
 
     // Flapping Controls
     var f2 = gui.addFolder('Flapping');
@@ -164,7 +147,6 @@ function onLoad(framework) {
     f2.add(flappingParams, 'motion', 0.0, 5.0).onChange(function(newVal) {
         updateWing();
     });
-    //f2.open();
 }
 
 function createWing(featherGeo, scene) {
@@ -274,9 +256,8 @@ function updateWing() {
 }
 
 
-var threshold = Math.PI / 10.0;
+
 function moveWing() {
-    // console.log(curve.v0);
     var date = new Date();
     var motion = flappingParams.motion;
     var speed = flappingParams.speed;
@@ -286,7 +267,9 @@ function moveWing() {
         var x = f1[i].position.x;
         var y = f1[i].position.y;
         var z = f1[i].position.z;
-        f1[i].position.set(x, y, x * x * Math.sin(date * speed * 0.001) * (motion * 0.01));
+        f1[i].position.set(x, 
+                           y,
+                           x * x * Math.sin(date * speed * 0.001) * (motion * 0.01));
 
         var rotz = Math.sin((Math.random() - 0.5) / 3.0) * 2 * Math.PI / 180;
         var roty = Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180;
@@ -310,7 +293,9 @@ function moveWing() {
         var x = f2[j].position.x;
         var y = f2[j].position.y;
         var z = f2[j].position.z;
-        f2[j].position.set(x, y, x * x * Math.sin(date * speed * 0.001) * (motion * 0.01));
+        f2[j].position.set(x, 
+                           y,
+                           x * x * Math.sin(date * speed * 0.001) * (motion * 0.01));
 
         var rotz = Math.sin((Math.random() - 0.5) / 3.0) * 2 * Math.PI / 180;
         var roty = Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180;
@@ -334,7 +319,9 @@ function moveWing() {
         var x = f3[k].position.x;
         var y = f3[k].position.y;
         var z = f3[k].position.z;
-        f3[k].position.set(x, y, x * x * Math.sin(date * speed * 0.001) * (motion * 0.01));
+        f3[k].position.set(x, 
+                           y, 
+                           x * x * Math.sin(date * speed * 0.001) * (motion * 0.01));
 
         var rotz = Math.sin((Math.random() - 0.5) / 3.0) * 2 * Math.PI / 180;
         var roty = Math.sin((Math.random() - 0.5) / 2.0) * 2 * Math.PI / 180;
@@ -357,12 +344,6 @@ function moveWing() {
 
 // called on frame updates
 function onUpdate(framework) {
-    // var feather = framework.scene.getObjectByName("feather");    
-    // if (feather !== undefined) {
-    //     // Simply flap wing
-    //     var date = new Date();
-    //     feather.rotateZ(Math.sin(date.getTime() / 100) * 2 * Math.PI / 180);        
-    // }
     if (loaded) {
         moveWing();
     }
